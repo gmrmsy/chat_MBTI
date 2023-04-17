@@ -197,9 +197,13 @@ for i in fst_N_key:
     df.loc[(df['sentence'].str.startswith(i)), 'intent'] = '부정'
 ```
 
-긍정과 부정, 그리고 그 외의 중립 문장에서 많이 사용된 ( 총문장의 1/10만큼 사용된 ) 토큰을 각각 추출합니다.
+사전학습된 KLUE/BERT-base모델의 토크나이즈를 불러옵니다.
+그리고 토크나이즈를 사용하여 긍정과 부정, 그리고 그 외의 중립 문장에서 많이 사용된 ( 총문장의 1/10만큼 사용된 ) 토큰을 각각 추출합니다.
 
 ```python
+
+tokenizer = BertTokenizer.from_pretrained("klue/bert-base")
+
 # 부정 토큰 추출
 # token 바구니
 N_count = []
@@ -320,12 +324,12 @@ P_keyword = ['맞아', '응응', '응\.', '응,']
 부정 키워드를 담은 긍정문장 / 긍정키워드 토큰를 담은 부정문장 / 긍정,부정키워드를 담은 중립문장을 제거합니다.
 
 ```python
-# 긍정문장 - 부정키워드
+# 부정키워드 포함 긍정문장 제거
 for intent in P_intent:
     for key in N_keyword:
         df.drop(df.loc[(df['intent'] ==intent)&df['sentence'].str.contains(key)].index, axis=0, inplace=True)
 
-# 부정분장 - 긍정키워드
+# 긍정키워드 포함 부정문장 제거
 for intent in N_intent:
     for key in P_keyword:
         df.drop(df.loc[(df['intent'] ==intent)&df['sentence'].str.contains(key)].index, axis=0, inplace=True)         
@@ -371,6 +375,84 @@ for i in temp :
 <img src="https://user-images.githubusercontent.com/91594005/232608697-cc8a75ec-eb4e-441b-a067-d348af41c2d0.png"/>
 
 
+```python
+# 클래수 개수
+lable_num = len(df['intent'].unique())
+lable_num
+
+# str -> int 라벨변경
+label_dict = {0: '긍정', 1: '부정', 2: '중립'}
+
+for idx, intent_lab in label_dict.items() :
+    df.loc[df['intent'] == intent_lab, 'intent'] = idx
+
+df = df.sample(frac=1).reset_index(drop=True)
+```
+
+8:2 = train:test 비율로 데이터를 나눠줍니다.
+
+```python
+train_data = pd.DataFrame()
+len_ = df['intent'].count()
+train_data = pd.concat([train_data,df.loc[:(len_*8)/10]],ignore_index=True)
+
+test_data = pd.DataFrame()
+len_ = df['intent'].count()
+test_data = pd.concat([test_data,df.loc[(len_*8)/10:]],ignore_index=True)
+```
+
+정제된 데이터가 Bert모델에 사용수 있도록 정수인코딩, 어텐션인코딩, 세그먼트인코딩을 진행하고 학습에 맞는 형태를 갖을 수 있도록 함수를 만듭니다.
+그리고 데이터를 함수에 적용시킵니다.
+
+```python
+def convert_examples_to_features(examples, labels, max_seq_len, tokenizer):
+
+    input_ids, attention_masks, token_type_ids, data_labels = [], [], [], []
+
+    for example, label in tqdm(zip(examples, labels), total=len(examples)):
+        # input_id는 워드임베딩을 위한 문장의 정수인코딩
+        input_id = tokenizer.encode(example, max_length=max_seq_len, pad_to_max_length=True)
+
+        # attention_mask는 실제단어가 위치하면 1, 패딩의 위치에는 0인 시퀀스.
+        padding_count = input_id.count(tokenizer.pad_token_id)
+        attention_mask = [1] * (max_seq_len - padding_count) + [0] * padding_count
+
+        # token_type_id은 세그먼트인코딩
+        token_type_id = [0] * max_seq_len
+
+        assert len(input_id) == max_seq_len, "Error with input length {} vs {}".format(len(input_id), max_seq_len)
+        assert len(attention_mask) == max_seq_len, "Error with attention masklength {} vs {}".format(len(attention_mask), max_seq_len)
+        assert len(token_type_id) == max_seq_len, "Error with token type length{} vs {}".format(len(token_type_id), max_seq_len)
+
+        input_ids.append(input_id)
+        attention_masks.append(attention_mask)
+        token_type_ids.append(token_type_id)
+        data_labels.append(label)
+
+    input_ids = np.array(input_ids, dtype=int)
+    attention_masks = np.array(attention_masks, dtype=int)
+    token_type_ids = np.array(token_type_ids, dtype=int)
+
+    data_labels = np.asarray(data_labels, dtype=np.int32)
+
+    return (input_ids, attention_masks, token_type_ids), data_labels
+    
+train_X, train_y = convert_examples_to_features(train_data['sentence'], train_data['intent'],
+                                              max_seq_len=max_seq_len, tokenizer=tokenizer)
+                                              
+test_X, test_y = convert_examples_to_features(test_data['sentence'], test_data['intent'],
+                                              max_seq_len=max_seq_len, tokenizer=tokenizer)
+```
+
+이제 사전학습된 KLUE/BERT-base 모델의 다중분류모델을 불러와 준비된 데이터를 사용하여 학습시킵니다.
+
+```python
+optimizer = tf.keras.optimizers.Adam(learning_rate=5e-5)
+model = TFBertForSequenceClassification.from_pretrained("klue/bert-base", num_labels=lable_num, from_pt=True)
+model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accuracy'])
+
+model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
+```
 
 
 
