@@ -11,11 +11,11 @@
 # 목차
 <!-- TOC -->
 
+- [Chat_MBTI](#home)
 - [데이터_수집/전처리](#데이터_수집/전처리)
 - [감성분류 모델](#감성분류_모델)
 - [의도분류_모델](#의도분류_모델)
 - [대화형_챗봇](#대화형_챗봇)
-- 
 
 <!-- /TOC -->
 
@@ -157,6 +157,7 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 
 # 감성분류_모델
+# home
 
 <img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" height="400"/>
 <img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" height="400"/>
@@ -454,7 +455,8 @@ model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accurac
 model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 ```
 
-
+# 의도분류_모델
+# home
 
 
 <img src="" width="800" height="200"/>
