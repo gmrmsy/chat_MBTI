@@ -146,7 +146,7 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 위 코드를 통해 만들어진 의도/감성분류 데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png"/>
+<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" height=400/>
 
 
 # 감성분류_모델
