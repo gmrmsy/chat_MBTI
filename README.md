@@ -156,8 +156,9 @@ intent_model.to_csv('intent_model_dataset.csv')
 <img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" height=400/>
 
 
-# 감성분류_모델
+
 - [Home](#Chat_MBTI)
+# 감성분류_모델
 
 <img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" height="400"/>
 <img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" height="400"/>
@@ -455,9 +456,34 @@ model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accurac
 model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 ```
 
+
+
 - [Home](#Chat_MBTI)
 # 의도분류_모델
 
+의도분류 모델은 기존 제공받은 라벨링데이터에서 \['(언약) 위협하기', (표현) 부정감정 표현하기, (표현) 긍정감정 표현하기, (선언/위임하기)\]
+
+4가지를 제거한 13가지 의도로 클래스를 구성하여 모델을 구축했습니다.
+
+데이터 추출을 제외한 모델 학습은 감성분류와 동일합니다.
+
+```python
+
+origin_df = pd.read_csv('C:/Users/Lee_Hyo_Jae/Desktop/new_project/dataset/intent_model_dataset.csv')
+df = copy.deepcopy(origin_df)
+df.drop(['Unnamed: 0'], axis=1, inplace=True)    # 불필요 column 제거
+df.dropna(inplace=True)    # 결측치 제거
+df.drop(df[df.duplicated()].index, axis=0, inplace=True)    # 중복값 제거
+df.drop(df[df['intent'] == '(언약) 위협하기'].index, axis=0, inplace=True)    # 불필요 label 제거
+df.drop(df[df['intent'] == '(표현) 부정감정 표현하기'].index, axis=0, inplace=True)    # 불필요 label 제거
+df.drop(df[df['intent'] == '(표현) 긍정감정 표현하기'].index, axis=0, inplace=True)    # 불필요 label 제거
+df.drop(df[df['intent'] == '(선언/위임하기)'].index, axis=0, inplace=True)    # 불필요 label 제거
+df.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)
+df = df.loc[df['sentence'].str.len() <= 100]
+df.reset_index(inplace=True)
+df.drop(['index'], axis=1, inplace=True)
+
+```
 
 
 <img src="" width="800" height="200"/>
