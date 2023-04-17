@@ -4,8 +4,7 @@
 # 목차
 <!-- TOC -->
 
-- [데이터_수집](#데이터_수집)
-- [데이터_처리](#데이터_전처리)
+- [데이터_수집/전처리](#데이터_수집/전처리)
 - [의도분류_모델](#의도분류_모델)
 - [감성분류 모델](#감성분류_모델)
 - [대화형_챗봇](#대화형_챗봇)
@@ -13,7 +12,7 @@
 
 <!-- /TOC -->
 
-# 데이터_수집
+# 데이터_수집/전처리
 <img src="https://user-images.githubusercontent.com/91594005/227862619-481d9ba0-239b-43e4-821d-03f95ecc0cbb.png" width="800" height="300"/>
 
 AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했습니다.
@@ -72,7 +71,7 @@ def preprocessing_list(dial_list):
 ```
 
 
-이제 대화를 추출합니다.
+이제 대화데이터셋을 추출합니다.
 
 앞에 만든 함수를 사용하여 원천데이터를 정제하고, 각각 사용자가 발화 한 후 다시 본인의 발화가 나올때까지의 발화를 모두 선발화와 대답으로 쌍을 이루게 했습니다.
 
@@ -105,18 +104,52 @@ for i in tqdm(range(len(li))):
                     except :
                         print(li[i]['dataset']['name'])
                         print(f'대화번호i:{i} / 문장번호j:{j} / 쌍번호k:{k}')
+
 ```
 
-다음 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
+위 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
 <img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" width="600" height="500"/>
 
 
 
+다음으로 의도분류와 감성분류를 위한 데이터셋을 추출합니다.
+
+```python
+dialog = pd.read_csv('dataset/dialog_chatbot.csv')
+
+intent_model = pd.DataFrame(columns=['sentence','intent'])
+Q_temp_sen = pd.DataFrame()
+Q_temp_int = pd.DataFrame()
+Q_temp_sen['sentence'] = dialog['Q']
+Q_temp_int['intent'] = dialog['Q_intent']
+Q_temp = pd.concat([Q_temp_sen,Q_temp_int], axis=1)
+
+A_temp_sen = pd.DataFrame()
+A_temp_int = pd.DataFrame()
+A_temp_sen['sentence'] = dialog['A']
+A_temp_int['intent'] = dialog['A_intent']
+A_temp = pd.concat([A_temp_sen,A_temp_int], axis=1)
+
+intent_model = pd.concat([Q_temp,A_temp], ignore_index=True)
+intent_model.drop(intent_model.loc[intent_model['intent']=='N/A'].index, axis=0, inplace=True)
+intent_model
+
+intent_model.drop(['Unnamed: 0'], axis=1, inplace=True)    # 불필요 column 제거
+intent_model.dropna(inplace=True)    # 결측치 제거
+intent_model.drop(intent_model[intent_model.duplicated()].index, axis=0, inplace=True)    # 중복값 제거
+intent_model.drop(intent_model[intent_model['intent'] == '(언약) 위협하기'].index, axis=0, inplace=True)    # 불필요 label 제거
+intent_model.reset_index(drop=True, inplace=True)    # 인덱스 초기화
+
+intent_model.to_csv('intent_model_dataset.csv')
+```
+
+위 코드를 통해 만들어진 의도/감성분류 데이터셋은 다음과 같습니다.
 
 
-그 다음결측값과 중복값을 제거해준다.
-그리고 문장안에 개인정보가 들어있는 경우 '\*' 로 표기를 했기 때문에 '\*'을 포함한 문장 또한 제거해준다.
+<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" width="600" height="500"/>
+
+
 
 ```ptyhon
 intent.dropna(inplace=True)    # 결측치 제거
