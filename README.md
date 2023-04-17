@@ -109,7 +109,7 @@ for i in tqdm(range(len(li))):
 
 위 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" width="600" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png">
 
 
 
@@ -147,7 +147,7 @@ intent_model.to_csv('intent_model_dataset.csv')
 위 코드를 통해 만들어진 의도/감성분류 데이터셋은 다음과 같습니다.
 
 
-<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" width="600" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png"/>
 
 
 
