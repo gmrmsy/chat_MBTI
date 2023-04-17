@@ -19,7 +19,7 @@
 AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했습니다.
 제공받은 말뭉치 안에는 2,3명의 사람이 주고받은 대화 내용이 들어있습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="600" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="700" height="500"/>
 
 위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어있습니다.
 
@@ -109,7 +109,7 @@ for i in tqdm(range(len(li))):
 
 다음 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png)" width="600" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" width="600" height="500"/>
 
 
 
