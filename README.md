@@ -109,7 +109,7 @@ for i in tqdm(range(len(li))):
 
 위 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png">
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" height=800>
 
 
 
