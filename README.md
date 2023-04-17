@@ -1,5 +1,5 @@
 # Chat_MBTI
-대화형 챗봇을 활용하여 사용자가 작성한 대화 문장을 분석해 사용자의 MBTI를 판별한다.
+대화형 챗봇을 활용하여 사용자가 작성한 대화 문장을 분석해 사용자의 MBTI를 판별합니다.
 
 # 목차
 <!-- TOC -->
@@ -16,47 +16,97 @@
 # 데이터_수집
 <img src="https://user-images.githubusercontent.com/91594005/227862619-481d9ba0-239b-43e4-821d-03f95ecc0cbb.png" width="800" height="300"/>
 
-AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했다.
-제공받은 말뭉치 안에는 2,3명의 사람이 주고받은 대화 내용이 들어있다.
+AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했습니다.
+제공받은 말뭉치 안에는 2,3명의 사람이 주고받은 대화 내용이 들어있습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/228107409-7fc451d9-5ffc-4fa8-ab21-bf7d0b3e9c72.png" width="450" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="450" height="500"/>
 
-위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어져있다.
+위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어있습니다.
 
-라벨링데이터에는 대화의 상세 정보와 문장 정보가 들어있고, 그 안에 각 문장의 의도가 포함되어 있다.
-라벨링데이터 부분내용과 의도분류리스트는 다음과 같다.
+라벨링데이터에는 대화의 상세 정보와 문장 정보가 들어있고, 그 안에 각 문장의 의도가 포함되어 있습니다.
+라벨링데이터 부분내용과 의도분류리스트는 다음과 같습니다.
 
 <img src="https://user-images.githubusercontent.com/91594005/228100234-084cf22a-fc24-47b1-b9c0-2fc4cf7f0d64.png" width="800" height="200"/>
 <img src="https://user-images.githubusercontent.com/91594005/228100732-bb7cc13d-4f63-4501-b083-fa3d80102dd4.png" width="800" height="100"/>
 
-먼저는 단일 문장에 대한 의도를 분류하기 위해서 각각의 문장과 문장의 의도만 추출하며 데이터셋을 만들었다.
+
+먼저는 제공받은 라벨링데이터를 한 폴더에 압축을 푼 후 json 라이브러리를 사용해 불러옵니다.
+
+makedataset/data_collection.ipynb
 
 ```python
-import os, json
+import os, json, copy
 import pandas as pd
+from tqdm import tqdm
 
 path_2 = '주제별 텍스트 일상 대화 데이터/'
 file_list_2 = os.listdir(path_2)
-print(file_list_2)
 
-intent = pd.DataFrame(columns=['sentence', 'intent'])
 
 li = []
-for folder in file_list_2:
+for i in tqdm(range(len(file_list_2))):
+    folder = file_list_2[i]
 
-    print(folder)
     path_1 = '주제별 텍스트 일상 대화 데이터/'+folder+'/'
     file_list_1 = os.listdir(path_1)
+
     for n in range(len(file_list_1)):
         with open(path_1+file_list_1[n], 'r', encoding='utf-8') as file:
             temp_data = json.load(file)
-            
-            for line in temp_data['info'][0]['annotations']['lines']:
-                
-                dialog = pd.concat([dialog,pd.DataFrame({'sentence' : [line['norm_text']], 'intent' : [line['speechAct']]})],ignore_index=True)
-
-print(intent)
+            li.append(temp_data)
 ```
+
+
+예시 원천데이터처럼 문장에 id가 매칭되지 않은 경우 그 앞 문장과 합쳐주는 함수를 만들었습니다. 
+
+```python
+def preprocessing_list(dial_list):
+    temp_list = []; cnt = 0
+    temp_list = copy.deepcopy(dial_list)
+    for i in range(len(dial_list)):
+        i -= cnt
+        if temp_list[i][0] not in ['1','2','3','4','5'] :
+            temp_list[i-1] += temp_list[i].lstrip()
+            temp_list.pop(i); cnt += 1
+    return temp_list
+```
+
+
+이제 대화를 추출합니다.
+앞에 만든 함수를 사용하여 원천데이터를 정제하고, 각각 사용자가 발화 한 후 다시 본인의 발화가 나올때까지의 발화를 모두 선발화와 대답으로 쌍을 이루게 했습니다.
+그리고 예기치 못한 에러를 방지하기 위해 for문 안에 try/except 문을 사용하여 대화데이터셋을 추출하였습니다.
+
+```python
+dialog = pd.DataFrame(columns=['Q','Q_intent', 'A', 'A_intent'])
+
+for i in tqdm(range(len(li))):
+    sen = preprocessing_list(li[i])
+    intent = li[i]['info'][0]['annotations']['lines']
+    for j in range(len(sen)):
+        if len(sen) != len(intent):
+            print(f"len(sen) != len(intent) : {li[i]['dataset']['name']}")
+            break
+        else :
+            for k in range(1,6):
+                if j+k >= len(sen)-1:
+                    break
+                elif sen[j][0] == sen[j+k][0]:
+                    break
+
+                if intent[j]['speechAct'] != intent[j+k]['speechAct']:
+                    # dialog = pd.concat([dialog,pd.DataFrame({'Q' : [sen[j].split(':')[-1].lstrip()], 'Q_intent' : intent[j]['speechAct'], 'A' : [sen[j+k].split(':')[-1].lstrip()], 'A_intent' : intent[j+k]['speechAct']})],ignore_index=True)
+                    try:
+                        dialog = pd.concat([dialog,pd.DataFrame({'Q' : [sen[j].split(':')[-1].lstrip()],
+                                                                 'Q_intent' : intent[j]['speechAct'],
+                                                                 'A' : [sen[j+k].split(':')[-1].lstrip()],
+                                                                 'A_intent' : intent[j+k]['speechAct']})], ignore_index=True)
+                    except :
+                        print(li[i]['dataset']['name'])
+                        print(f'대화번호i:{i} / 문장번호j:{j} / 쌍번호k:{k}')
+```
+
+
+
 
 그 다음결측값과 중복값을 제거해준다.
 그리고 문장안에 개인정보가 들어있는 경우 '\*' 로 표기를 했기 때문에 '\*'을 포함한 문장 또한 제거해준다.
