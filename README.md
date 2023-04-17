@@ -1,6 +1,13 @@
 # Chat_MBTI
 대화형 챗봇을 활용하여 사용자가 작성한 대화 문장을 분석해 사용자의 MBTI를 판별합니다.
 
+<img src="https://user-images.githubusercontent.com/91594005/232571512-e0c63cf9-9ba7-4926-8a19-0da04b0fc4c2.png"/>
+
+대화 데이터셋과 MBTI문답 데이터 셋으로 챗봇의 대화를 구성하고
+사용자의 문장은 감성분석과 의도분석모델로 예측을 한다.
+여기서 감성분석은 MBTI의 질문대한 대답이므로 좋고 싫음 / 옳고 그름 / 동의 비동의 기준의 감성분석 모델이 필요하다.
+그리고 의도분석 모델을 통해 사용자의 대화 의도의 분포와 빈도로 성격유형을 예측하는데 사용한다.
+
 # 목차
 <!-- TOC -->
 
@@ -151,6 +158,7 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 # 감성분류_모델
 
+<img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png"/>
 
 
 
