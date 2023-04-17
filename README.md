@@ -178,10 +178,10 @@ intent_model.to_csv('intent_model_dataset.csv')
 origin_df = pd.read_csv('C:/Users/Lee_Hyo_Jae/Desktop/new_project/dataset/intent_model_dataset.csv')
 
 df = copy.deepcopy(origin_df)
-df.drop(['Unnamed: 0'], axis=1, inplace=True)
-df.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)
-df = df.loc[df['sentence'].str.len() <= 100]
-df.reset_index(inplace=True, drop=True)
+df.drop(['Unnamed: 0'], axis=1, inplace=True)    # 불필요 column 제거
+df.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)    # 이름, 주소 같은 개인정보는 ***처리 되어있으므로 '*' 포함문장 제거
+df = df.loc[df['sentence'].str.len() <= 100]    # 문장 총 길이 100이상 제거
+df.reset_index(inplace=True, drop=True)    # 인덱스 
 
 
 df.loc[(df['sentence'].str.contains('응') & df['sentence'].str.contains('좋아')), 'intent'] = '긍정'
@@ -391,7 +391,7 @@ for idx, intent_lab in label_dict.items() :
 df = df.sample(frac=1).reset_index(drop=True)
 ```
 
-8:2 = train:test 비율로 데이터를 나눠줍니다.
+8:2 비율로 train데이터와 test데이터를 나눠줍니다.
 
 ```python
 train_data = pd.DataFrame()
@@ -465,10 +465,7 @@ model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 
 4가지를 제거한 13가지 의도로 클래스를 구성하여 모델을 구축했습니다.
 
-데이터 추출을 제외한 모델 학습은 감성분류와 동일합니다.
-
 ```python
-
 origin_df = pd.read_csv('C:/Users/Lee_Hyo_Jae/Desktop/new_project/dataset/intent_model_dataset.csv')
 df = copy.deepcopy(origin_df)
 df.drop(['Unnamed: 0'], axis=1, inplace=True)    # 불필요 column 제거
@@ -480,10 +477,57 @@ df.drop(df[df['intent'] == '(표현) 긍정감정 표현하기'].index, axis=0, 
 df.drop(df[df['intent'] == '(선언/위임하기)'].index, axis=0, inplace=True)    # 불필요 label 제거
 df.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)
 df = df.loc[df['sentence'].str.len() <= 100]
-df.reset_index(inplace=True)
-df.drop(['index'], axis=1, inplace=True)
-
+df.reset_index(drop=True, inplace=True)
 ```
+
+클래스 개수 선언, # str -> int 라벨변경
+
+```python
+# 클래스 개수
+lable_num = len(df['intent'].unique())
+lable_num
+
+# str -> int 라벨변경
+intet_label = list(df['intent'].unique())
+
+label_dict = {}
+
+for idx, intent_lab in enumerate(intet_label) :
+    df.loc[df['intent'] == intent_lab, 'intent'] = idx
+    label_dict[idx] = intent_lab
+```
+
+8:2 비율로 train데이터와 test데이터를 나눠줍니다.
+
+```python
+train_data = pd.DataFrame()
+test_data = pd.DataFrame()
+print(train_data)
+print(test_data)
+
+for k,v in label_dict.items():
+    len_ = df.loc[df['intent'] == k,'intent'].count()
+    if len_ > 20000 :
+        temp = df.loc[df['intent'] == k].sample(n=20000).reset_index(drop=True)
+        train_data = pd.concat([train_data,temp.loc[:16000]],ignore_index=True)
+        test_data = pd.concat([test_data,temp.loc[16000:]],ignore_index=True)
+    else :
+        temp = df.loc[df['intent'] == k].reset_index(drop=True)
+        train_data = pd.concat([train_data,temp.loc[:(len_*8)/10]],ignore_index=True)
+        test_data = pd.concat([test_data,temp.loc[(len_*8)/10:]],ignore_index=True)
+
+train_data = train_data.sample(frac=1).reset_index(drop=True)
+test_data = test_data.sample(frac=1).reset_index(drop=True)
+```
+
+데이터 추출, 전처리를 제외한 모델 학습은 감성분류와 동일합니다.
+
+
+
+- [Home](#Chat_MBTI)
+# 대화형_챗봇
+
+
 
 
 <img src="" width="800" height="200"/>
