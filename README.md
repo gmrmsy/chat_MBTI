@@ -454,7 +454,7 @@ model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accurac
 model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 ```
 
-# 의도분류_모델                                                                                               - [Home](#Chat_MBTI)
+# 의도분류_모델;                                                                                               - [Home](#Chat_MBTI)
 
 
 <img src="" width="800" height="200"/>
