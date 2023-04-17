@@ -19,7 +19,7 @@
 AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했습니다.
 제공받은 말뭉치 안에는 2,3명의 사람이 주고받은 대화 내용이 들어있습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="450" height="500"/>
+<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="600" height="500"/>
 
 위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어있습니다.
 
@@ -32,7 +32,7 @@ AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사�
 
 먼저는 제공받은 라벨링데이터를 한 폴더에 압축을 푼 후 json 라이브러리를 사용해 불러옵니다.
 
-makedataset/data_collection.ipynb
+"makedataset/data_collection.ipynb"
 
 ```python
 import os, json, copy
@@ -73,7 +73,9 @@ def preprocessing_list(dial_list):
 
 
 이제 대화를 추출합니다.
+
 앞에 만든 함수를 사용하여 원천데이터를 정제하고, 각각 사용자가 발화 한 후 다시 본인의 발화가 나올때까지의 발화를 모두 선발화와 대답으로 쌍을 이루게 했습니다.
+
 그리고 예기치 못한 에러를 방지하기 위해 for문 안에 try/except 문을 사용하여 대화데이터셋을 추출하였습니다.
 
 ```python
@@ -104,6 +106,11 @@ for i in tqdm(range(len(li))):
                         print(li[i]['dataset']['name'])
                         print(f'대화번호i:{i} / 문장번호j:{j} / 쌍번호k:{k}')
 ```
+
+다음 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
+
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png)" width="600" height="500"/>
+
 
 
 
