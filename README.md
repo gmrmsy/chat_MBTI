@@ -5,8 +5,8 @@
 <!-- TOC -->
 
 - [데이터_수집/전처리](#데이터_수집/전처리)
-- [의도분류_모델](#의도분류_모델)
 - [감성분류 모델](#감성분류_모델)
+- [의도분류_모델](#의도분류_모델)
 - [대화형_챗봇](#대화형_챗봇)
 - 
 
@@ -109,7 +109,7 @@ for i in tqdm(range(len(li))):
 
 위 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png">
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" height=400>
 
 
 
@@ -146,20 +146,11 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 위 코드를 통해 만들어진 의도/감성분류 데이터셋은 다음과 같습니다.
 
-
 <img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png"/>
 
 
+# 감성분류_모델
 
-```ptyhon
-intent.dropna(inplace=True)    # 결측치 제거
-intent.drop(df[df.duplicated()].index, axis=0, inplace=True)    # 중복값 제거
-intent.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)    # '*' 포함한 문장 제거
-intent_drop(intent.loc[intent['intent']=='N/A'].index, axis=0, inplace=True)    # intent열 'N/A'값 제거
-intent.reset_index(drop=True, inplace=True)    # 인덱스 초기화
-```
-
-<img src="https://user-images.githubusercontent.com/91594005/228116685-4b739a5d-b9d0-4254-a51d-7c60428ea0d5.png" width="600" height="300"/>
 
 
 
