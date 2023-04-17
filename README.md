@@ -21,13 +21,13 @@ AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사�
 
 <img src="https://user-images.githubusercontent.com/91594005/228107409-7fc451d9-5ffc-4fa8-ab21-bf7d0b3e9c72.png" width="450" height="500"/>
 
-위 그림과 가은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어져있다.
+위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어져있다.
 
 라벨링데이터에는 대화의 상세 정보와 문장 정보가 들어있고, 그 안에 각 문장의 의도가 포함되어 있다.
 라벨링데이터 부분내용과 의도분류리스트는 다음과 같다.
 
 <img src="https://user-images.githubusercontent.com/91594005/228100234-084cf22a-fc24-47b1-b9c0-2fc4cf7f0d64.png" width="800" height="200"/>
-<img src="https://user-images.githubusercontent.com/91594005/228100732-bb7cc13d-4f63-4501-b083-fa3d80102dd4.png" width="600" height="100"/>
+<img src="https://user-images.githubusercontent.com/91594005/228100732-bb7cc13d-4f63-4501-b083-fa3d80102dd4.png" width="800" height="100"/>
 
 먼저는 단일 문장에 대한 의도를 분류하기 위해서 각각의 문장과 문장의 의도만 추출하며 데이터셋을 만들었다.
 
