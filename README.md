@@ -158,7 +158,217 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 # 감성분류_모델
 
-<img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png"/>
+<img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" height="400"/>
+<img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" height="400"/>
+
+제공받은 라벨링 데이터의 긍정/부정 기준은 기분좋은/나쁜 느낌이 있는 문장을 기준으로 하고있어서
+
+의도했던 좋고 싫음 / 옳고 그름 / 동의 비동의 기준과 다릅니다.
+
+때문에 기준에 맞는 새로운 라벨링이 필요했습니다.
+
+함께 사용되었을때 긍정/부정 문장임을 알 수 있는 단어와 문장의 앞머리에 왔을 때 긍정/부정을 결정지을 수 있는 키워드들을 선정하고,
+
+키워드를 기반으로 의도한 기준에 맞는 문장을 추출하는 명령어를 입력합니다.
+
+"NP_model_make.ipynb"
+```python
+origin_df = pd.read_csv('C:/Users/Lee_Hyo_Jae/Desktop/new_project/dataset/intent_model_dataset.csv')
+
+df = copy.deepcopy(origin_df)
+df.drop(['Unnamed: 0'], axis=1, inplace=True)
+df.drop(df.loc[df['sentence'].str.contains('\*')].index, axis=0, inplace=True)
+df = df.loc[df['sentence'].str.len() <= 100]
+df.reset_index(inplace=True, drop=True)
+
+
+df.loc[(df['sentence'].str.contains('응') & df['sentence'].str.contains('좋아')), 'intent'] = '긍정'
+df.loc[(df['sentence'].str.contains('응') & df['sentence'].str.contains('맞아')), 'intent'] = '긍정'
+
+df.loc[(df['sentence'].str.contains('아니') & df['sentence'].str.contains('싫어')), 'intent'] = '부정'
+
+
+fst_P_key = ['맞어','맞아','마자','마쟈','마저','맞지','응 ','응!','응응 ','웅 ','웅웅 ','웅!','좋아 ','좋다']
+fst_N_key = ['아뇨','아니','아닌데','아녀','아니여','아냐','싫어 ','싫어,','싫어!','시러','싫은데','안돼','안되지','안된','별로야']
+
+for i in fst_P_key:
+    df.loc[(df['sentence'].str.startswith(i)), 'intent'] = '긍정'
+for i in fst_N_key:
+    df.loc[(df['sentence'].str.startswith(i)), 'intent'] = '부정'
+```
+
+긍정과 부정, 그리고 그 외의 중립 문장에서 많이 사용된 ( 총문장의 1/10만큼 사용된 ) 토큰을 각각 추출합니다.
+
+```python
+# 부정 토큰 추출
+# token 바구니
+N_count = []
+
+# 필요 문장 추출
+N_intent = ['(표현) 부정감정 표현하기', '(단언) 반박하기', '(언약) 거절하기', '부정']
+
+# 필요 문장 구성하는 모든 token 바구니에 넣기
+for intent in N_intent :
+    for i in df.loc[(df['intent'] == intent), 'sentence']:
+        N_count += tokenizer.encode(i)
+
+# token 고유값과 개수 / N_uni[0] = 고유값 리스트 / N_uni[1] = 고유값 개수 리스트
+N_uni = np.unique(N_count, return_counts=True)
+
+# 고유값 개수 내림차순 정렬
+N_cnt = sorted(list(set(N_uni[1])),reverse=True)
+
+# N_many = N_uni[0]에서 검색할 index값 / N_token = 사용 횟수가 많은 token
+N_many = []
+N_token = []
+
+for i in N_cnt:
+    if i > 2700 :
+        N_many.append(list(N_uni[1]).index(i))
+for j in range(len(N_many)) :
+    N_token.append(N_uni[0][N_many[j]])
+    
+print(N_many)
+print(tokenizer.decode(N_token))
+
+
+# 긍정 토큰 추출
+# token 바구니
+P_count = []
+
+# 필요 문장 추출
+P_intent = ['(표현) 긍정감정 표현하기', '(표현) 감사하기', '긍정']
+
+# 필요 문장 구성하는 모든 token 바구니에 넣기
+for intent in P_intent :
+    for i in df.loc[(df['intent'] == intent), 'sentence']:
+        P_count += tokenizer.encode(i)
+
+# token 고유값과 개수 / N_uni[0] = 고유값 리스트 / N_uni[1] = 고유값 개수 리스트
+P_uni = np.unique(P_count, return_counts=True)
+
+# 고유값 개수 내림차순 정렬
+P_cnt = sorted(list(set(P_uni[1])),reverse=True)
+
+# N_many = N_uni[0]에서 검색할 index값 / N_token = 사용 횟수가 많은 token
+P_many = []
+P_token = []
+
+for i in P_cnt:
+    if i > 7700 :
+        P_many.append(list(P_uni[1]).index(i))
+for j in range(len(P_many)) :
+    P_token.append(P_uni[0][P_many[j]])
+    
+print(P_many)
+print(tokenizer.decode(P_token))
+
+
+# 중립 토큰 추출
+# token 바구니
+M_count = []
+
+# 필요 문장 추출
+M_intent = ['(단언) 진술하기', '(지시) 충고/제안하기', '(단언) 주장하기', '(지시) 질문하기', '(지시) 부탁하기',
+        '(표현) 사과하기', '(지시) 명령/요구하기', '턴토크 사인(관습적 반응)',
+       '(언약) 약속하기(제3자와)/(개인적 수준)', '(표현) 인사하기', '(선언/위임하기)']
+
+# 필요 문장 구성하는 모든 token 바구니에 넣기
+for intenti in range(len(M_intent)):
+    if df.loc[(df['intent'] == intent), 'sentence'].count() > 1000:
+        for i in (df.loc[(df['intent'] == intent), 'sentence']):
+            M_count += tokenizer.encode(i)
+    else:
+        for i in (df.loc[(df['intent'] == intent), 'sentence']):
+            M_count += tokenizer.encode(i)
+
+# token 고유값과 개수 / N_uni[0] = 고유값 리스트 / N_uni[1] = 고유값 개수 리스트
+M_uni = np.unique(M_count, return_counts=True)
+
+# 고유값 개수 내림차순 정렬
+M_cnt = sorted(list(set(M_uni[1])),reverse=True)
+
+# M_many = N_uni[0]에서 검색할 index값 / M_token = 사용 횟수가 많은 token
+M_many = []
+M_token = []
+
+for i in M_cnt:
+    if i > 100000 :
+        M_many.append(list(M_uni[1]).index(i))
+for j in range(len(M_many)) :
+    M_token.append(M_uni[0][M_many[j]])
+    
+print(M_many)
+print(tokenizer.decode(M_token))
+```
+
+그리고 긍정토큰 안에 있는 부정,중립토큰 / 부정토큰 안에 있는 긍정,중립토큰를 제외하여 정제된 토큰를 추출한 뒤,
+앞서 선정한 키워드와 토큰을 기반으로 긍정,부정키워드를 결정했습니다.
+
+
+```python
+# 중복값 제거
+print(tokenizer.decode((set(N_token).difference(set(P_token))).difference(set(M_token))))
+print(tokenizer.decode((set(P_token).difference(set(N_token))).difference(set(M_token))))
+
+N_keyword = ['싫어\.\.', '아니']
+P_keyword = ['맞아', '응응', '응\.', '응,']
+```
+
+필요한만큼의 문장을 추출한 뒤
+
+부정 키워드를 담은 긍정문장 / 긍정키워드 토큰를 담은 부정문장 / 긍정,부정키워드를 담은 중립문장을 제거합니다.
+
+```python
+# 긍정문장 - 부정키워드
+for intent in P_intent:
+    for key in N_keyword:
+        df.drop(df.loc[(df['intent'] ==intent)&df['sentence'].str.contains(key)].index, axis=0, inplace=True)
+
+# 부정분장 - 긍정키워드
+for intent in N_intent:
+    for key in P_keyword:
+        df.drop(df.loc[(df['intent'] ==intent)&df['sentence'].str.contains(key)].index, axis=0, inplace=True)         
+
+# 필요한 데이터를 추출하기 위한 DataFrame 생성
+temp_df = pd.DataFrame()
+df_ = copy.deepcopy(df)
+
+# 기존 데이터에서 긍정, 부정 문장 제거
+for intent in (N_intent+P_intent):
+    df_.drop(df_[df_['intent'] == intent].index, axis=0, inplace=True)
+
+# 남은 중립문장 중 필요한만큼 문장 추출
+temp_df = pd.concat([temp_df,df_.sample(n=13000)], ignore_index=True)
+
+# 중립문장 중 긍정/부정 키워드 포함한 문장 제거
+for key in (N_keyword+P_keyword):
+    temp_df.drop(temp_df.loc[temp_df['sentence'].str.contains(key)].index, axis=0, inplace=True)
+    
+# 필요한만큼 긍정/부정문장 추출
+for intent in (N_intent+P_intent):
+    if df.loc[df['intent']==intent, 'intent'].count() > 10000:
+        temp = pd.concat([temp,df[df['intent'] == intent].sample(n=10000)], ignore_index=True)
+    elif df.loc[df['intent']==intent, 'intent'].count() > 1000:
+        temp = pd.concat([temp,df[df['intent'] == intent].sample(n=1000)], ignore_index=True)
+    else :
+        temp = pd.concat([temp,df[df['intent'] == intent]], ignore_index=True)
+
+temp.loc[(temp['intent'] == '(표현) 부정감정 표현하기')|(temp['intent'] == '(언약) 거절하기')|
+         (temp['intent'] == '(단언) 반박하기'), 'intent'] = '부정'
+temp.loc[(temp['intent'] == '(표현) 긍정감정 표현하기')|(temp['intent'] == '(표현) 감사하기'), 'intent'] = '긍정'
+temp.loc[(temp['intent'] != '부정')&(temp['intent'] != '긍정'), 'intent'] = '중립'
+
+df = copy.deepcopy(temp)
+
+temp = list(df['intent'].unique())
+for i in temp :
+    print(i,df.loc[df['intent']==i,'intent'].count())
+```
+
+<img src="https://user-images.githubusercontent.com/91594005/232608671-6e2fe1f0-9389-4ea8-9642-02c97143763e.png"/>
+<img src="https://user-images.githubusercontent.com/91594005/232608687-4ed716fd-c845-4aca-b455-fe26b67f56a2.png"/>
+<img src="https://user-images.githubusercontent.com/91594005/232608697-cc8a75ec-eb4e-441b-a067-d348af41c2d0.png"/>
 
 
 
