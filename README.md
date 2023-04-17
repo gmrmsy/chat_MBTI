@@ -156,8 +156,7 @@ intent_model.to_csv('intent_model_dataset.csv')
 <img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" height=400/>
 
 
-# 감성분류_모델
-- [Home](#Chat_MBTI)
+# 감성분류_모델                                                                                               - [Home](#Chat_MBTI)
 
 <img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" height="400"/>
 <img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" height="400"/>
@@ -455,8 +454,7 @@ model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accurac
 model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 ```
 
-# 의도분류_모델
-- [Home](#Chat_MBTI)
+# 의도분류_모델                                                                                               - [Home](#Chat_MBTI)
 
 
 <img src="" width="800" height="200"/>
