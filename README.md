@@ -527,8 +527,8 @@ test_data = test_data.sample(frac=1).reset_index(drop=True)
 - [Home](#Chat_MBTI)
 # 대화형_챗봇
 
+대화형 챗봇의 경우 SKT에서 개발한 
 
 
 
-
-<img src="" width="20%" height="20%"/>
+<img src="" />
