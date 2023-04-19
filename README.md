@@ -20,20 +20,20 @@
 <!-- /TOC -->
 
 # 데이터_수집/전처리
-<img src="https://user-images.githubusercontent.com/91594005/227862619-481d9ba0-239b-43e4-821d-03f95ecc0cbb.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/227862619-481d9ba0-239b-43e4-821d-03f95ecc0cbb.png" width="75%" height="75%"/>
 
 AI hub에서 제공하는 '주제별 텍스트 일상 대화 데이터'를 사용했습니다.
 제공받은 말뭉치 안에는 2,3명의 사람이 주고받은 대화 내용이 들어있습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232556745-806877ff-72f9-458d-b7c9-048c62c4755b.png" width="75%" height="75%"/>
 
 위 그림과 같은 원천데이터와 원천데이터를 json파일로 정리한 라벨링데이터로 구분되어있습니다.
 
 라벨링데이터에는 대화의 상세 정보와 문장 정보가 들어있고, 그 안에 각 문장의 의도가 포함되어 있습니다.
 라벨링데이터 부분내용과 의도분류리스트는 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/228100234-084cf22a-fc24-47b1-b9c0-2fc4cf7f0d64.png" width="50%" height="50%"/>
-<img src="https://user-images.githubusercontent.com/91594005/228100732-bb7cc13d-4f63-4501-b083-fa3d80102dd4.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/228100234-084cf22a-fc24-47b1-b9c0-2fc4cf7f0d64.png" width="75%" height="75%"/>
+<img src="https://user-images.githubusercontent.com/91594005/228100732-bb7cc13d-4f63-4501-b083-fa3d80102dd4.png" width="75%" height="75%"/>
 
 
 먼저는 제공받은 라벨링데이터를 한 폴더에 압축을 푼 후 json 라이브러리를 사용해 불러옵니다.
@@ -116,7 +116,7 @@ for i in tqdm(range(len(li))):
 
 위 코드를 통해 만들어진 대화데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232559955-1bb836dd-8787-41b0-bf5c-22e2412dc78c.png" width="75%" height="75%"/>
 
 
 
@@ -153,15 +153,15 @@ intent_model.to_csv('intent_model_dataset.csv')
 
 위 코드를 통해 만들어진 의도/감성분류 데이터셋은 다음과 같습니다.
 
-<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232564995-87a38165-e044-4023-bf24-3fdba7c7b936.png" width="75%" height="75%"/>
 
 
 
 - [Home](#Chat_MBTI)
 # 감성분류_모델
 
-<img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" width="50%" height="50%"/>
-<img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232574582-2e2130c1-769f-4f43-9291-5ca152bec5fb.png" width="75%" height="75%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232575753-cda62703-dc74-47da-9878-ec2246d90828.png" width="75%" height="75%"/>
 
 제공받은 라벨링 데이터의 긍정/부정 기준은 기분좋은/나쁜 느낌이 있는 문장을 기준으로 하고있어서
 
@@ -372,9 +372,9 @@ for i in temp :
     print(i,df.loc[df['intent']==i,'intent'].count())
 ```
 
-<img src="https://user-images.githubusercontent.com/91594005/232608671-6e2fe1f0-9389-4ea8-9642-02c97143763e.png" width="50%" height="50%"/>
-<img src="https://user-images.githubusercontent.com/91594005/232608687-4ed716fd-c845-4aca-b455-fe26b67f56a2.png" width="50%" height="50%"/>
-<img src="https://user-images.githubusercontent.com/91594005/232608697-cc8a75ec-eb4e-441b-a067-d348af41c2d0.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232608671-6e2fe1f0-9389-4ea8-9642-02c97143763e.png" width="75%" height="75%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232608687-4ed716fd-c845-4aca-b455-fe26b67f56a2.png" width="75%" height="75%"/>
+<img src="https://user-images.githubusercontent.com/91594005/232608697-cc8a75ec-eb4e-441b-a067-d348af41c2d0.png" width="75%" height="75%"/>
 
 
 ```python
