@@ -527,8 +527,96 @@ test_data = test_data.sample(frac=1).reset_index(drop=True)
 - [Home](#Chat_MBTI)
 # 대화형_챗봇
 
-대화형 챗봇의 경우 SKT에서 개발한 
+
+데이터셋은 10만개 이상의 대화쌍을 확보했으나 성능과 시간의 문제로 데이터 개수를 줄여 fine-tune 하였습니다.
+이름이나 주소같은 개인정보를 대체한 * 을 포함한 문장, 문장 길이가 50자 이상되는 문장을 제거하였습니다.
+
+```python
+df = pd.read_csv('dialog_chatbot.csv')
+
+df.drop(['Unnamed: 0'], axis=1, inplace=True)
+df.drop(df.loc[df['Q'].str.contains('\*')].index, axis=0, inplace=True)
+df.drop(df.loc[df['A'].str.contains('\*')].index, axis=0, inplace=True)
+df.drop(df.loc[df['Q'].str.len() >= 50].index, axis=0, inplace=True)
+df.drop(df.loc[df['A'].str.len() >= 50].index, axis=0, inplace=True)
+```
+
+그리고 의도별로 다양한 문장을 학습시키기 위해 조건문을 활용하여 문장을 추출하였습니다.
+
+```python
+intet_label = list(df['Q_intent'].unique())
+
+label_dict = {}
+
+for idx, intent_lab in enumerate(intet_label) :
+    label_dict[idx] = intent_lab
+
+Q_int_li = list(set(df['Q_intent'].unique()))
+
+train_data = pd.DataFrame()
+
+for v,k in label_dict.items():
+    len_ = df.loc[df['Q_intent'] == k,'Q_intent'].count()
+    if len_ > 10000 :
+        train_data = pd.concat([train_data,df.loc[df['Q_intent'] == k].sample(n=10000)],ignore_index=True)
+    else :
+        train_data = pd.concat([train_data,df.loc[df['Q_intent'] == k]],ignore_index=True)
+
+for v,k in label_dict.items():
+    len_ = df.loc[df['A_intent'] == k,'A_intent'].count()
+    if len_ > 10000 :
+        train_data = pd.concat([train_data,df.loc[df['A_intent'] == k].sample(n=10000)],ignore_index=True)
+    else :
+        train_data = pd.concat([train_data,df.loc[df['A_intent'] == k]],ignore_index=True)
+
+train_data.drop(train_data[train_data.duplicated()].index, axis=0, inplace=True)
+train_data = train_data.sample(frac=1).reset_index(drop=True)
+```
+
+해당 추출 결과 다음과 같은 데이터셋으로 학습을 진행하게 되었습니다.
+
+<img src="https://user-images.githubusercontent.com/91594005/233006613-40d54569-cf2e-46b9-9139-590bf29bbf41.png" />
 
 
+이제 generater 함수를 사용해 Dataset객체를 생성하고 padded_batch 함수를 사용해 batch로 나누어줍니다.
 
-<img src="" />
+```python
+def get_chat_data():
+  for question, answer in zip(train_data.Q.to_list(), train_data.A.to_list()):
+    bos_token = [tokenizer.bos_token_id]
+    eos_token = [tokenizer.eos_token_id]
+    sent = tokenizer.encode('<usr>' + question + '<sys>' + answer) 
+    yield bos_token + sent + eos_token
+    
+dataset = tf.data.Dataset.from_generator(get_chat_data, output_types=tf.int32)
+
+batch_size = 128
+dataset = dataset.padded_batch(batch_size=batch_size, padded_shapes=(None,), padding_values=tokenizer.pad_token_id)
+```
+
+만들어진 데이터셋을 사용해 학습을 진행합니다.
+
+```python
+adam = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08)
+
+if len(train_data) % batch_size == 0:
+    steps = len(train_data) // batch_size
+else :
+    steps = len(train_data) // batch_size + 1
+    
+EPOCHS = 5
+for epoch in range(EPOCHS):
+  epoch_loss = 0
+
+  for batch in tqdm.notebook.tqdm(dataset, total=steps):
+      with tf.GradientTape() as tape:
+          result = model(batch, labels=batch)
+          loss = result[0]
+          batch_loss = tf.reduce_mean(loss)
+          
+      grads = tape.gradient(batch_loss, model.trainable_variables)
+      adam.apply_gradients(zip(grads, model.trainable_variables))
+      epoch_loss += batch_loss / steps
+
+  print('[Epoch: {:>4}] cost = {:>.9}'.format(epoch + 1, epoch_loss))
+```
