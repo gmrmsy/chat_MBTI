@@ -552,8 +552,9 @@ test_data = test_data.sample(frac=1).reset_index(drop=True)
 
 데이터 추출, 전처리를 제외한 모델 학습은 감성분류와 동일합니다.
 
-##### intent_model_loader.ipynb 을 통해 의도분류모델을 사용할 수 있습니다.
+<img src="https://github.com/gmrmsy/chat_MBTI/assets/91594005/85a7e7de-0a92-4aad-b3ac-3e6a04465955.png" width="75%" height="75%"/>
 
+##### intent_model_loader.ipynb 을 통해 의도분류모델을 사용할 수 있습니다.
 
 
 - [Home](#Chat_MBTI)
