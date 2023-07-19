@@ -485,7 +485,8 @@ sentiment_predict(new_sentence)
 
 <img src="https://github.com/gmrmsy/chat_MBTI/assets/91594005/e4340bc6-b3cc-4679-be5f-fc29a355a646.png" width="75%" height="75%"/>
 
-### NP_model_loader.ipynb 를 통해 사용해볼 수 있습니다.
+##### NP_model_loader.ipynb 를 통해 감성분류모델을을 사용할 수 있습니다.
+
 
 - [Home](#Chat_MBTI)
 # 의도분류_모델
@@ -550,6 +551,8 @@ test_data = test_data.sample(frac=1).reset_index(drop=True)
 ```
 
 데이터 추출, 전처리를 제외한 모델 학습은 감성분류와 동일합니다.
+
+##### intent_model_loader.ipynb 을 통해 의도분류모델을 사용할 수 있습니다.
 
 
 
