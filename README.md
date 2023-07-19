@@ -458,7 +458,34 @@ model.compile(optimizer=optimizer, loss=model.hf_compute_loss, metrics=['accurac
 model.fit(train_X, train_y, epochs=8, batch_size=128, validation_split=0.2)
 ```
 
+학습된 모델로 문장의 감성을 분류합니다.
 
+```python
+def sentiment_predict(new_sentence):
+    input_id = tokenizer.encode(new_sentence, max_length=max_seq_len, pad_to_max_length=True)
+
+    padding_count = input_id.count(tokenizer.pad_token_id)
+    attention_mask = [1] * (max_seq_len - padding_count) + [0] * padding_count
+    token_type_id = [0] * max_seq_len
+
+    input_ids = np.array([input_id])
+    attention_masks = np.array([attention_mask])
+    token_type_ids = np.array([token_type_id])
+
+    encoded_input = [input_ids, attention_masks, token_type_ids]
+
+    score = np.argmax(model.predict(encoded_input)[0])
+
+    print('sentence :',new_sentence)
+    print(label_dict[score])
+
+new_sentence = input('sentence > ')
+sentiment_predict(new_sentence)
+```
+
+<img src="https://github.com/gmrmsy/chat_MBTI/assets/91594005/e4340bc6-b3cc-4679-be5f-fc29a355a646.png" width="75%" height="75%"/>
+
+# NP_model_loader.ipynb 를 통해 사용해볼 수 있습니다.
 
 - [Home](#Chat_MBTI)
 # 의도분류_모델
