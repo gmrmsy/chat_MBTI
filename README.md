@@ -485,7 +485,7 @@ sentiment_predict(new_sentence)
 
 <img src="https://github.com/gmrmsy/chat_MBTI/assets/91594005/e4340bc6-b3cc-4679-be5f-fc29a355a646.png" width="75%" height="75%"/>
 
-# NP_model_loader.ipynb 를 통해 사용해볼 수 있습니다.
+### NP_model_loader.ipynb 를 통해 사용해볼 수 있습니다.
 
 - [Home](#Chat_MBTI)
 # 의도분류_모델
