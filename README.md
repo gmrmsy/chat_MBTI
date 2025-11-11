@@ -1,5 +1,3 @@
-### [google Drive를 통해 해당 코드와 모델을 사용할 수 있습니다](https://drive.google.com/drive/folders/1x4I8nw79KGZktH-hs9jljODfPao2nmYt?usp=sharing)
-
 # Chat_MBTI
 대화형 챗봇을 활용하여 사용자가 작성한 대화 문장을 분석해 사용자의 MBTI를 판별합니다.
 
